@@ -25,7 +25,7 @@ end
 function onCommand()
     helpers.log(nil, "onCommand")
     local availableIngredients = getInventoryIngredients()
-    helpers.log(string.format("Avaliable ingredients: %s", helpers.tableString(availableIngredients)), "onCommand")
+    helpers.log(string.format("Avaliable ingredients: %s", helpers.tableString(availableIngredients, 0)), "onCommand")
 end
 
 event.register("initialized", init)
