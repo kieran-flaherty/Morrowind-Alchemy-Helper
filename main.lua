@@ -16,16 +16,51 @@ function getInventoryIngredients()
         if helpers.hasValue(ingredients, tostring(itemStack.object)) then
             helpers.log(string.format("Found ingredient: %s, count: %d", itemStack.object, count),
                 "getInventoryIngredients")
-            table.insert(ingredientsInInventory, {item = tostring(itemStack.object), count = count})
+            table.insert(ingredientsInInventory, {item = itemStack.object, count = count})
         end
     end
     return ingredientsInInventory
 end
 
+function groupIngredientsInInventoryByEffect(availableIngredients)
+    local effectsWithIngredients = {}
+    for _, obj in pairs(availableIngredients) do
+        for i = 1,4 do
+            if tes3.getMagicEffect(obj.item.effects[i]) ~= nil then
+                local effect = tes3.getMagicEffect(obj.item.effects[i])
+                local target = math.max(obj.item.effectAttributeIds[i], obj.item.effectSkillIds[i])
+                local effectName = helpers.getEffectName(effect, target)
+                local found = false
+                for _,j in pairs(effectsWithIngredients) do
+                    if j.effectName == effectName then
+                        found = true
+                        table.insert(j.effectIngreds, {itemName = obj.item.name, count = obj.count})
+                        break
+                    end
+                end
+                if found == false then
+                    local newEntry = {
+                        effectName = effectName,
+                        effectIngreds = {
+                            [1] = {
+                                itemName = obj.item.name,
+                                count = obj.count
+                            }
+                        }
+                    }
+                    table.insert(effectsWithIngredients, newEntry)
+                end
+            end
+        end
+    end
+    helpers.log("Got grouped ingredient data:\n" .. helpers.tableString(effectsWithIngredients, 0),
+        "groupIngredientsInInventoryByEffect")
+end
+
 function onCommand()
     helpers.log(nil, "onCommand")
     local availableIngredients = getInventoryIngredients()
-    helpers.log(string.format("Avaliable ingredients: %s", helpers.tableString(availableIngredients, 0)), "onCommand")
+    local groupedPlayerInventoryData = groupIngredientsInInventoryByEffect(availableIngredients)
 end
 
 event.register("initialized", init)

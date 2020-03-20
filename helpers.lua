@@ -34,4 +34,20 @@ function Helpers.tableString(tab, indentLevel)
     end
 end
 
+function Helpers.getEffectName(effect, stat)
+    local statName
+    if effect.targetsAttributes then
+        statName = tes3.findGMST(888 + stat).value
+    elseif effect.targetsSkills then
+        statName = tes3.findGMST(896 + stat).value
+    end
+
+    local effectName = tes3.findGMST(1283 + effect.id).value
+    if statName then
+        return effectName:match("%S+") .. " " .. statName
+    else
+        return effectName
+    end
+end
+
 return Helpers
