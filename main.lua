@@ -24,8 +24,15 @@ end
 
 function groupIngredientsInInventoryByEffect(availableIngredients)
     local effectsWithIngredients = {}
+    local playerAlchemyLvl = tes3.mobilePlayer["alchemy"].current
+    helpers.log("Got player alchemy: " .. tostring(playerAlchemyLvl), "groupIngredientsInInventoryByEffect")
+    local visibleEffects = helpers.getNumVisibleAlchemyEffects(playerAlchemyLvl)
+    helpers.log("Got visible num effects: " .. tostring(visibleEffects), "groupIngredientsInInventoryByEffect")
+    if visibleEffects == 0 then
+        return nil
+    end
     for _, obj in pairs(availableIngredients) do
-        for i = 1,4 do
+        for i = 1, visibleEffects do
             if tes3.getMagicEffect(obj.item.effects[i]) ~= nil then
                 local effect = tes3.getMagicEffect(obj.item.effects[i])
                 local target = math.max(obj.item.effectAttributeIds[i], obj.item.effectSkillIds[i])
@@ -53,14 +60,18 @@ function groupIngredientsInInventoryByEffect(availableIngredients)
             end
         end
     end
-    helpers.log("Got grouped ingredient data:\n" .. helpers.tableString(effectsWithIngredients, 0),
-        "groupIngredientsInInventoryByEffect")
+    table.sort(effectsWithIngredients,
+        function(a,b)
+            return a.effectName < b.effectName
+        end)
+    return effectsWithIngredients
 end
 
 function onCommand()
-    helpers.log(nil, "onCommand")
+    helpers.log("Command key pressed", "onCommand")
     local availableIngredients = getInventoryIngredients()
     local groupedPlayerInventoryData = groupIngredientsInInventoryByEffect(availableIngredients)
+    helpers.logDisplayStringFromInventoryData(groupedPlayerInventoryData)
 end
 
 event.register("initialized", init)

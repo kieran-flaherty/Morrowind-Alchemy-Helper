@@ -50,4 +50,30 @@ function Helpers.getEffectName(effect, stat)
     end
 end
 
+function Helpers.getNumVisibleAlchemyEffects(alchemyLvl)
+    if alchemyLvl < 15 then
+        return 0
+    elseif alchemyLvl < 30 then
+        return 1
+    elseif alchemyLvl < 45 then
+        return 2
+    elseif alchemyLvl < 60 then
+        return 3
+    else
+        return 4
+    end
+end
+
+function Helpers.logDisplayStringFromInventoryData(groupedPlayerInventoryData)
+    local info = "\n"
+    for i, e in pairs(groupedPlayerInventoryData) do
+        info = info .. e.effectName .. "\n"
+        for i2, e2 in pairs(e.effectIngreds) do
+            info = info .. "--" .. e2.itemName .. '(' .. tostring(e2.count) .. ')' .. '\n'
+        end
+    end
+    Helpers.log(info, "logDisplayStringFromInventoryData")
+    return info
+end
+
 return Helpers
